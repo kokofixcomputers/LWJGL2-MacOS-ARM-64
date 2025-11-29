@@ -18,14 +18,13 @@ jobs:
       - name: Build LWJGL
         working-directory: ./lwjgl-arm64
         run: |
-          export JAVA_HOME=${{ env.JAVA_HOME_8_X64 }}
-          $JAVA_HOME/bin/javac --version  # Verify Java 8
+          /Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64/bin/javac -version
+          export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
           ant generate-all
           ant jars
           ant compile_native
           cd libs/macosx
           zip -r ../lwjgl-platform-natives-osx.jar liblwjgl.dylib openal.dylib
-
       
       - name: Clone jinput
         run: git clone https://github.com/shadowfacts/jinput-arm64.git
