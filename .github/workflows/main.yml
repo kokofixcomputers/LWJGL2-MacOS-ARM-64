@@ -28,28 +28,25 @@ jobs:
           curl -L -o $JAVA_HOME/lib/tzdb.dat https://github.com/adoptium/temurin8u-jdk/raw/master/src/share/lib/tzdb.dat
           
           ant generate-all
-          ant jars  # ✓ WORKS EVERY TIME
+          ant jars  # ✓ Creates bin/*.h headers
           
-          # MANUAL NATIVE COMPILE - NO ANT NEEDED
-          mkdir -p bin/lwjgl/arm64
-          clang -arch arm64 \
+          # MANUAL NATIVE COMPILE - WITH GENERATED HEADERS
+          mkdir -p bin/lwjgl/arm64 libs/macosx
+          
+          # liblwjgl.dylib (main library)
+          clang -arch arm64 -std=c99 -fobjc-arc \
             -I$JAVA_HOME/include -I$JAVA_HOME/include/darwin \
             -Ibin -Isrc/native/common -Isrc/native/macosx \
-            -dynamiclib \
             src/native/common/*.c src/native/macosx/*.m \
             -o bin/lwjgl/arm64/liblwjgl.dylib \
-            -framework OpenGL -framework AGL -framework Cocoa
-          
-          # OpenAL (if needed)
-          clang -arch arm64 \
-            -I$JAVA_HOME/include -I$JAVA_HOME/include/darwin \
-            -Ibin -Isrc/native/common \
-            src/native/openal/*.c \
-            -o bin/lwjgl/arm64/openal.dylib \
-            -framework OpenAL
+            -framework OpenGL -framework AGL -framework Cocoa -framework OpenAL \
+            -framework CoreFoundation -framework IOKit
+            
+          # Copy to libs/macosx for zip
+          cp bin/lwjgl/arm64/liblwjgl.dylib libs/macosx/
           
           cd libs/macosx
-          zip -r ../lwjgl-platform-natives-osx.jar liblwjgl.dylib openal.dylib
+          zip -r ../lwjgl-platform-natives-osx.jar liblwjgl.dylib
 
       - name: Clone jinput
         run: git clone https://github.com/shadowfacts/jinput-arm64.git
