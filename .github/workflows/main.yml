@@ -19,20 +19,25 @@ jobs:
         working-directory: ./lwjgl-arm64
         env:
           JAVA_HOME: /Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
-          ANT_OPTS: "-Djava.home=$JAVA_HOME -Dbuild.compiler.emacs.mode=true"
           CFLAGS: "-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
           CPPFLAGS: "-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
         run: |
-          # Set timezone to bypass tzdb.dat loading
-          export TZ=UTC
           export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
-          mkdir -p $JAVA_HOME/lib/tzdb.dat  # Dummy file
-          touch $JAVA_HOME/lib/tzdb.dat
           
-          ant -lib . -noinput generate-all jars compile_native
+          # Fix tzdb.dat: remove directory, download real file
+          rm -rf $JAVA_HOME/lib/tzdb.dat
+          mkdir -p $JAVA_HOME/lib
+          curl -L -o $JAVA_HOME/lib/tzdb.dat https://github.com/adoptium/temurin8u-jdk/raw/master/src/share/lib/tzdb.dat
+          
+          # Verify file (not directory)
+          ls -la $JAVA_HOME/lib/tzdb.dat
+          file $JAVA_HOME/lib/tzdb.dat
+          
+          ant generate-all
+          ant jars
+          ant compile_native
           cd libs/macosx
           zip -r ../lwjgl-platform-natives-osx.jar liblwjgl.dylib openal.dylib
-
 
       - name: Clone jinput
         run: git clone https://github.com/shadowfacts/jinput-arm64.git
