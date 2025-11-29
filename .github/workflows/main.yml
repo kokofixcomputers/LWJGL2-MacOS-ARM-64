@@ -22,17 +22,16 @@ jobs:
         run: |
           export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
           
-          # Fix tzdb.dat
+          # Fix tzdb.dat (already working)
           rm -rf $JAVA_HOME/lib/tzdb.dat
           mkdir -p $JAVA_HOME/lib
           curl -L -o $JAVA_HOME/lib/tzdb.dat https://github.com/adoptium/temurin8u-jdk/raw/master/src/share/lib/tzdb.dat
           
           ant generate-all
-          ant jars
+          ant jars  # ✓ SUCCESS above!
           
-          # PATCH: Add JNI includes to clang command
-          sed -i.bak 's|<exec executable="clang|<exec executable="clang"|<include value="-I'$JAVA_HOME'/include -I'$JAVA_HOME'/include/darwin" />|' platform_build/macosx_ant/build.xml
-          sed -i.bak 's|<compiler name="clang"|<compiler name="clang"><include path="'$JAVA_HOME'/include" />|' platform_build/macosx_ant/build.xml
+          # CORRECT sed: Find clang line and append includes
+          sed -i.bak 's/\(clang[^"]*\)/\1 -I'$JAVA_HOME'/include -I'$JAVA_HOME'/include\/darwin/' platform_build/macosx_ant/build.xml
           
           ant compile_native
           cd libs/macosx
