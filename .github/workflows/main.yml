@@ -18,8 +18,9 @@ jobs:
       - name: Build LWJGL
         working-directory: ./lwjgl-arm64
         run: |
-          /Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64/bin/javac -version
           export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
+          # Set SDKROOT for clang to find jni.h in Xcode
+          export SDKROOT=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
           ant generate-all
           ant jars
           ant compile_native
