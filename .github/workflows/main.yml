@@ -19,8 +19,15 @@ jobs:
         working-directory: ./lwjgl-arm64
         run: |
           export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
-          # Set SDKROOT for clang to find jni.h in Xcode
-          export SDKROOT=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+          
+          # Create missing JNI headers from Xcode/system Java
+          mkdir -p $JAVA_HOME/include $JAVA_HOME/include/darwin
+          cp /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/jni.h $JAVA_HOME/include/ || true
+          cp /Library/Java/JavaVirtualMachines/*openjdk*/Contents/Home/include/jni_md.h $JAVA_HOME/include/darwin/ || true
+          
+          # Verify
+          ls -la $JAVA_HOME/include/jni.h
+          
           ant generate-all
           ant jars
           ant compile_native
