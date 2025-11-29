@@ -23,14 +23,16 @@ jobs:
           CFLAGS: "-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
           CPPFLAGS: "-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
         run: |
-          # Verify jni.h exists (you already have it)
-          ls -la $JAVA_HOME/include/jni.h
+          # Set timezone to bypass tzdb.dat loading
+          export TZ=UTC
+          export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
+          mkdir -p $JAVA_HOME/lib/tzdb.dat  # Dummy file
+          touch $JAVA_HOME/lib/tzdb.dat
           
-          ant generate-all
-          ant jars
-          ant compile_native
+          ant -lib . -noinput generate-all jars compile_native
           cd libs/macosx
           zip -r ../lwjgl-platform-natives-osx.jar liblwjgl.dylib openal.dylib
+
 
       - name: Clone jinput
         run: git clone https://github.com/shadowfacts/jinput-arm64.git
