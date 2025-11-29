@@ -17,15 +17,13 @@ jobs:
       
       - name: Build LWJGL
         working-directory: ./lwjgl-arm64
+        env:
+          JAVA_HOME: /Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
+          ANT_OPTS: "-Djava.home=$JAVA_HOME -Dbuild.compiler.emacs.mode=true"
+          CFLAGS: "-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
+          CPPFLAGS: "-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
         run: |
-          export JAVA_HOME=/Users/runner/hostedtoolcache/Java_Zulu_jdk/8.0.472-8/arm64
-          
-          # Create missing JNI headers from Xcode/system Java
-          mkdir -p $JAVA_HOME/include $JAVA_HOME/include/darwin
-          cp /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/jni.h $JAVA_HOME/include/ || true
-          cp /Library/Java/JavaVirtualMachines/*openjdk*/Contents/Home/include/jni_md.h $JAVA_HOME/include/darwin/ || true
-          
-          # Verify
+          # Verify jni.h exists (you already have it)
           ls -la $JAVA_HOME/include/jni.h
           
           ant generate-all
@@ -33,7 +31,7 @@ jobs:
           ant compile_native
           cd libs/macosx
           zip -r ../lwjgl-platform-natives-osx.jar liblwjgl.dylib openal.dylib
-      
+
       - name: Clone jinput
         run: git clone https://github.com/shadowfacts/jinput-arm64.git
         
