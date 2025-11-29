@@ -8,11 +8,18 @@ jobs:
       
       - name: Clone LWJGL
         run: git clone https://github.com/shadowfacts/lwjgl-arm64.git
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+          cache: true
         
       - name: Build LWJGL
         working-directory: ./lwjgl-arm64
         run: |
-          brew install ant  # If needed, Xcode has it
+          export JAVA_HOME=$JAVA_HOME_8_X64  # Java 8 path
           ant generate-all
           ant jars
           ant compile_native
